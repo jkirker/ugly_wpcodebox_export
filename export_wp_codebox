@@ -3,14 +3,25 @@
 global $wpdb;
 
 // Get the current date and time in the desired format
-$current_datetime = current_time('Ymd-H');
+$current_datetime = current_time('Ymd-H-i');
 
-// Set the name of the file to be exported
-$filename = $current_datetime . '-WPCodeBox-export.txt';
+// Generate a random 5 digit alphanumeric hash for the file name
+$hash = substr(md5(mt_rand()), 0, 5);
+
+// Set the name of the file to be exported with the hash appended
+$filename = $current_datetime . '-WPCodeBox-export-' . $hash . '.txt';
 
 // Set the path to the directory where the file will be saved
 $upload_dir = wp_upload_dir();
-$export_path = $upload_dir['basedir'] . '/' . $filename;
+$export_path = $upload_dir['basedir'] . '/wpcodeboxback/';
+
+// Create the directory if it doesn't exist
+if (!file_exists($export_path)) {
+    wp_mkdir_p($export_path);
+}
+
+// Add the file name to the export path
+$export_path .= $filename;
 
 // Query the wp_postmeta table with the appropriate prefix
 $table_name = $wpdb->prefix . 'postmeta';
