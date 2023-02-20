@@ -1,0 +1,35 @@
+<?php
+
+global $wpdb;
+
+// Get the current date and time in the desired format
+$current_datetime = current_time('Ymd-H');
+
+// Set the name of the file to be exported
+$filename = $current_datetime . '-WPCodeBox-export.txt';
+
+// Set the path to the directory where the file will be saved
+$upload_dir = wp_upload_dir();
+$export_path = $upload_dir['basedir'] . '/' . $filename;
+
+// Query the wp_postmeta table with the appropriate prefix
+$table_name = $wpdb->prefix . 'postmeta';
+$query = "SELECT meta_id, post_id, meta_key, meta_value FROM $table_name WHERE meta_key IN ('wpcb_original_code', 'wpcb_code')";
+$results = $wpdb->get_results($query, ARRAY_A);
+
+// Open the file for writing
+$handle = fopen($export_path, 'w');
+
+// Write the column headers to the file
+$header_row = array('meta_id', 'post_id', 'meta_key', 'meta_value');
+fputcsv($handle, $header_row);
+
+// Loop through the results and write each row to the file
+foreach ($results as $row) {
+    fputcsv($handle, $row);
+}
+
+// Close the file
+fclose($handle);
+
+?>
